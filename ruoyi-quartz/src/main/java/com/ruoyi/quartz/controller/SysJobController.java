@@ -71,7 +71,7 @@ public class SysJobController extends BaseController
     @GetMapping(value = "/{jobId}")
     public AjaxResult getInfo(@PathVariable("jobId") Long jobId)
     {
-        return AjaxResult.success(jobService.selectJobById(jobId));
+        return success(jobService.selectJobById(jobId));
     }
 
     /**
@@ -128,7 +128,7 @@ public class SysJobController extends BaseController
         }
         else if (StringUtils.containsAnyIgnoreCase(job.getInvokeTarget(), new String[] { Constants.LOOKUP_LDAP, Constants.LOOKUP_LDAPS }))
         {
-            return error("修改任务'" + job.getJobName() + "'失败，目标字符串不允许'ldap'调用");
+            return error("修改任务'" + job.getJobName() + "'失败，目标字符串不允许'ldap(s)'调用");
         }
         else if (StringUtils.containsAnyIgnoreCase(job.getInvokeTarget(), new String[] { Constants.HTTP, Constants.HTTPS }))
         {
@@ -167,8 +167,8 @@ public class SysJobController extends BaseController
     @PutMapping("/run")
     public AjaxResult run(@RequestBody SysJob job) throws SchedulerException
     {
-        jobService.run(job);
-        return AjaxResult.success();
+        boolean result = jobService.run(job);
+        return result ? success() : error("任务不存在或已过期！");
     }
 
     /**
@@ -180,6 +180,6 @@ public class SysJobController extends BaseController
     public AjaxResult remove(@PathVariable Long[] jobIds) throws SchedulerException, TaskException
     {
         jobService.deleteJobByIds(jobIds);
-        return AjaxResult.success();
+        return success();
     }
 }
